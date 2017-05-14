@@ -35,12 +35,12 @@ int gLed = 1;
 int bLed = 2;
 
 //Placeholders for values
-int r;
-int g;
-int b;
+int r = 0;
+int g = 0;
+int b = 0;
 
-//HTML responses (and a placeholder)
-String form = "<h1>LED Picker v0.1</h1> <form action='led'  oninput='gValue.value = g.valueAsNumber; rValue.value = r.valueAsNumber; bValue.value = b.valueAsNumber'> <div>R:<input id='r' type='range' min='0' max='255' step='1' name='r' value='0'/><output name='rValue' for='r' >0</output></div> <div>G:<input id='g' type='range' min='0' max='255' step='1' name='g' value='0'/><output name='gValue' for='g' >0</output></div> <div>B:<input id='b' type='range' min='0' max='255' step='1' name='b' value='0'/><output name='bValue' for='b' >0</output></div> <input id='submit' type='submit'> </form>";
+//HTML response placeholders
+String form;
 String response;
 
 
@@ -51,6 +51,8 @@ void setup() {
     analogWrite(i, 0); //Turns off the LED as well
   }
   analogWriteRange(255); //Decreases the analog range from 1023 to 255, to make it easier for the interface -> analog output
+
+  pinMode(LED_BUILTIN, OUTPUT); //Assigns the builtin LED as an output
 
 #if DEBUG //Any blocks of code like this are for debugging and are either added or removed pre-compile
   Serial.begin(115200); //Start serial
@@ -77,11 +79,23 @@ void setup() {
 
 
 void handleRoot() { //Code for the root handling
-  server.send(200, "text/html", form); //References the form string defined above for prettyness
+  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
+  
+  form = "<h1>LED Picker v0.1</h1> <form action='led'  oninput='gValue.value = g.valueAsNumber; rValue.value = r.valueAsNumber; bValue.value = b.valueAsNumber'> <div>R:<input id='r' type='range' min='0' max='255' step='1' name='r' value='";
+  form += r; //All this makes the sliders at the values that the LEDs are already at
+  form += "'/><output name='rValue' for='r' >0</output></div> <div>G:<input id='g' type='range' min='0' max='255' step='1' name='g' value='";
+  form += g;
+  form += "'/><output name='gValue' for='g' >0</output></div> <div>B:<input id='b' type='range' min='0' max='255' step='1' name='b' value='";
+  form += b;
+  form += "'/><output name='bValue' for='b' >0</output></div> <input id='submit' type='submit'> </form>";
+  
+  server.send(200, "text/html", form); //Sends the form
 }
 
 
 void handleLed() { //Code for parsing input and the response after the form is submitted
+  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
+  
   r = server.arg("r").toInt(); //Converts each argument in the request to an integer and passes it to a global variable
   g = server.arg("g").toInt();
   b = server.arg("b").toInt();
@@ -93,9 +107,9 @@ void handleLed() { //Code for parsing input and the response after the form is s
   Serial.println("Setting values and sending 200 response");
 #endif
 
-  analogWrite(rLed, r); //Outputs the value to the correct pins
-  analogWrite(gLed, g);
-  analogWrite(bLed, b);
+  analogWrite(rLed, constrain(r, 0, 255); //Outputs the value to the correct pins
+  analogWrite(gLed, constrain(g, 0, 255);
+  analogWrite(bLed, constrain(b, 0, 255);
 
   response = "<div height=\'100\' width=\'100\' style=\'background-color: rgb("; //First define of the response
   
@@ -122,11 +136,13 @@ void handleLed() { //Code for parsing input and the response after the form is s
 }
 
 void teapot() { 
+  
   server.send(418, "text/plain", "Error 418: Attempted to brew coffee with a teapot"); // If you are curious: https://tools.ietf.org/html/rfc2324#section-2.3.2
 } //That RFC is one of many April Fools jokes by ITEF; all of which are very humorous.
 
 
 void loop() {
   server.handleClient(); //Forever handle the client
+  digitalWrite(LED_BUILTIN, 0); //Turn the LED off when not doing something important
 }
 
