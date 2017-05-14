@@ -6,9 +6,9 @@
 
   Pin connections are as follows:
 
-  GPIO0 --> Red LED transistor
-  GPIO1 --> Green LED transistor
-  GPIO2 --> Blue LED transistor
+  GPIO1 --> Red LED transistor via SPST
+  GPIO2 --> Green LED transistor via SPST
+  GPIO3 --> Blue LED transistor
   GND --> Common Ground
   Vcc --> 3.3VDC, NOT 5V
   CHIP_EN --> 3.3VDC
@@ -30,9 +30,9 @@ const char *password = "password123"; //All the security!
 ESP8266WebServer server(80);
 
 //Pin assignments
-int rLed = 0;
-int gLed = 1;
-int bLed = 2;
+int rLed = 1;
+int gLed = 2;
+int bLed = 3;
 
 //Placeholders for values
 int r = 0;
@@ -53,7 +53,7 @@ void setup() {
   analogWriteRange(255); //Decreases the analog range from 1023 to 255, to make it easier for the interface -> analog output
 
   pinMode(LED_BUILTIN, OUTPUT); //Assigns the builtin LED as an output
-
+  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
 #if DEBUG //Any blocks of code like this are for debugging and are either added or removed pre-compile
   Serial.begin(115200); //Start serial
   delay(10);
@@ -83,11 +83,17 @@ void handleRoot() { //Code for the root handling
   
   form = "<h1>LED Picker v0.1</h1> <form action='led'  oninput='gValue.value = g.valueAsNumber; rValue.value = r.valueAsNumber; bValue.value = b.valueAsNumber'> <div>R:<input id='r' type='range' min='0' max='255' step='1' name='r' value='";
   form += r; //All this makes the sliders at the values that the LEDs are already at
-  form += "'/><output name='rValue' for='r' >0</output></div> <div>G:<input id='g' type='range' min='0' max='255' step='1' name='g' value='";
+  form += "'/><output name='rValue' for='r' >";
+  form += r;
+  form += "</output></div> <div>G:<input id='g' type='range' min='0' max='255' step='1' name='g' value='";
   form += g;
-  form += "'/><output name='gValue' for='g' >0</output></div> <div>B:<input id='b' type='range' min='0' max='255' step='1' name='b' value='";
+  form += "'/><output name='gValue' for='g' >";
+  form += g;
+  form += "</output></div> <div>B:<input id='b' type='range' min='0' max='255' step='1' name='b' value='";
   form += b;
-  form += "'/><output name='bValue' for='b' >0</output></div> <input id='submit' type='submit'> </form>";
+  form += "'/><output name='bValue' for='b' >";
+  form += b;
+  form += "</output></div> <input id='submit' type='submit'> </form>";
   
   server.send(200, "text/html", form); //Sends the form
 }
@@ -107,9 +113,9 @@ void handleLed() { //Code for parsing input and the response after the form is s
   Serial.println("Setting values and sending 200 response");
 #endif
 
-  analogWrite(rLed, constrain(r, 0, 255); //Outputs the value to the correct pins
-  analogWrite(gLed, constrain(g, 0, 255);
-  analogWrite(bLed, constrain(b, 0, 255);
+  analogWrite(rLed, constrain(r, 0, 255)); //Outputs the value to the correct pins
+  analogWrite(gLed, constrain(g, 0, 255));
+  analogWrite(bLed, constrain(b, 0, 255));
 
   response = "<div height=\'100\' width=\'100\' style=\'background-color: rgb("; //First define of the response
   
