@@ -31,7 +31,7 @@ ESP8266WebServer server(80);
 
 //Pin assignments
 int rLed = 1;
-int gLed = 2;
+int gLed = 0;
 int bLed = 3;
 
 //Placeholders for values
@@ -46,14 +46,14 @@ String response;
 
 void setup() {
   int i;
-  for (i = 0; i < 2; i++) { //Assign all pins as outputs
+  for (i = 0; i < 4; i++) { //Assign all pins as outputs
     pinMode(i, OUTPUT);
     analogWrite(i, 0); //Turns off the LED as well
   }
   analogWriteRange(255); //Decreases the analog range from 1023 to 255, to make it easier for the interface -> analog output
 
   pinMode(LED_BUILTIN, OUTPUT); //Assigns the builtin LED as an output
-  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
+  digitalWrite(LED_BUILTIN, 0); //Turns on the builtin LED to signify action
 #if DEBUG //Any blocks of code like this are for debugging and are either added or removed pre-compile
   Serial.begin(115200); //Start serial
   delay(10);
@@ -79,7 +79,7 @@ void setup() {
 
 
 void handleRoot() { //Code for the root handling
-  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
+  digitalWrite(LED_BUILTIN, 0); //Turns on the builtin LED to signify action
   
   form = "<h1>LED Picker v0.1</h1> <form action='led'  oninput='gValue.value = g.valueAsNumber; rValue.value = r.valueAsNumber; bValue.value = b.valueAsNumber'> <div>R:<input id='r' type='range' min='0' max='255' step='1' name='r' value='";
   form += r; //All this makes the sliders at the values that the LEDs are already at
@@ -100,7 +100,7 @@ void handleRoot() { //Code for the root handling
 
 
 void handleLed() { //Code for parsing input and the response after the form is submitted
-  digitalWrite(LED_BUILTIN, 1); //Turns on the builtin LED to signify action
+  digitalWrite(LED_BUILTIN, 0); //Turns on the builtin LED to signify action
   
   r = server.arg("r").toInt(); //Converts each argument in the request to an integer and passes it to a global variable
   g = server.arg("g").toInt();
@@ -149,6 +149,6 @@ void teapot() {
 
 void loop() {
   server.handleClient(); //Forever handle the client
-  digitalWrite(LED_BUILTIN, 0); //Turn the LED off when not doing something important
+  digitalWrite(LED_BUILTIN, 1); //Turn the LED off when not doing something important
 }
 
